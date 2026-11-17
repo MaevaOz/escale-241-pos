@@ -1,0 +1,90 @@
+/* ==========================================================================
+   L'ESCALE 241 — JETONS DE DESIGN (tokens.css)
+   Inspiré de la charte PharmaConnect (Piste C "La Notice" & Composant Ticket)
+   et adapté à l'environnement nocturne du bar-restaurant L'Escale 241.
+   Aucune valeur n'est écrite en dur dans les feuilles de style des écrans.
+   ========================================================================== */
+
+:root {
+  /* Palette de couleurs — Service de nuit (21h - 06h) & Cuivre L'Escale 241 */
+  --fond: #141413;
+  --surface: #1e1e1c;
+  --surface-haute: #272724;
+  --neutre-claire: #2c2d2a;
+
+  /* Le Ticket de caisse (élément mémorable unique, papier clair posé sur le comptoir) */
+  --ticket-surface: #faf7f2;
+  --ticket-texte: #1b2230;
+  --ticket-secondaire: #525c6b;
+  --ticket-trait: #7d8681;
+  --ticket-info-fond: #ebe6dc;
+
+  /* Encre & Textes sur fond sombre (Contraste WCAG AAA/AA >= 4.5:1) */
+  --encre: #f5f6f4;
+  --texte: #eceeec;
+  --texte-secondaire: #a3a9b0;
+
+  /* Action principale — Cuivre / Ambre (chaises métalliques & éclairage chaud) */
+  --croix: #d4821a;
+  --croix-texte: #141413;
+  --croix-fonce: #efb05c;
+  --croix-claire: rgba(212, 130, 26, 0.16);
+
+  /* Tons sémantiques — Statuts, vigilances et erreurs */
+  --succes: #3ca86e;
+  --succes-claire: rgba(60, 168, 110, 0.16);
+  --ocre: #e8a93e;
+  --ocre-claire: #2e2414;
+  --erreur: #e55c50;
+  --erreur-claire: #2e1918;
+  --info-claire: rgba(212, 130, 26, 0.14);
+
+  /* Filets et séparations (Contraste >= 3:1 pour --trait-fort) */
+  --trait: #2e302d;
+  --trait-fort: #6e7571;
+  --voile: rgba(12, 14, 18, 0.72);
+
+  /* Typographie — Piste C "La Notice" */
+  --font-titre: 'Source Serif 4', Georgia, serif;
+  --font-texte: 'Source Sans 3', system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+  --font-code: 'Source Sans 3', system-ui, -apple-system, sans-serif;
+
+  /* Échelle d'espacements */
+  --espace-1: 4px;
+  --espace-2: 8px;
+  --espace-3: 12px;
+  --espace-4: 16px;
+  --espace-6: 24px;
+  --espace-8: 32px;
+  --espace-12: 48px;
+
+  /* Arrondis hiérarchisés */
+  --arrondi-etiquette: 3px;
+  --arrondi-champ: 4px;
+  --arrondi-bouton: 6px;
+  --arrondi-panneau: 10px;
+
+  /* Ombre réservée exclusivement à ce qui flotte au-dessus de l'écran */
+  --ombre-flottante: 0 8px 24px rgba(0, 0, 0, 0.55);
+
+  /* Tailles et interlignes */
+  --taille-titre-page: 30px;
+  --ligne-titre-page: 36px;
+  --taille-titre-section: 22px;
+  --ligne-titre-section: 28px;
+  --taille-titre-bloc: 18px;
+  --ligne-titre-bloc: 24px;
+  --taille-corps: 17px;
+  --ligne-corps: 26px;
+  --taille-statut: 16px;
+  --ligne-statut: 22px;
+  --taille-petit: 15px;
+  --ligne-petit: 21px;
+  --taille-reference: 16px;
+  --ligne-reference: 20px;
+  --taille-total-ticket: 28px;
+  --ligne-total-ticket: 34px;
+
+  /* Hauteur tactile minimale (UI/UX Pro Max & Charte) */
+  --hauteur-tactile: 48px;
+}

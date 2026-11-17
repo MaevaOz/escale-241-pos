@@ -1,0 +1,380 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#141413">
+  <meta name="description" content="Application de prise de commande et gestion de salle hors-ligne pour le bar-restaurant L'Escale 241.">
+  <title>L'Escale 241 — Salle et Prise de Commande</title>
+  <link rel="manifest" href="manifest.json">
+  <!-- Polices de la charte (Piste C "La Notice" : Source Serif 4 & Source Sans 3) -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Source+Sans+3:wght@400;600;700&family=Source+Serif+4:wght@600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="tokens.css">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+  <!-- En-tête de l'application -->
+  <header class="entete-app">
+    <div class="marque-bloc">
+      <span class="marque-titre">L'Escale 241</span>
+      <span class="marque-sous-titre">Registre de salle et caisse hors-ligne</span>
+    </div>
+    <nav class="nav-principale" aria-label="Navigation principale">
+      <button type="button" class="btn btn--secondaire est-actif" id="nav-btn-salle">
+        Consulter la salle
+      </button>
+      <button type="button" class="btn btn--secondaire" id="nav-btn-commande">
+        Prendre une commande
+      </button>
+      <button type="button" class="btn btn--discret" id="nav-btn-admin">
+        Gérer la carte et la salle
+      </button>
+    </nav>
+  </header>
+
+  <!-- Bandeau d'alerte pleine largeur (Composant 6.1) -->
+  <div id="bandeau-global" class="bandeau-alerte bandeau-alerte--erreur" role="alert" hidden>
+    <p class="bandeau-texte">
+      <span class="bandeau-fait" id="bandeau-fait">Action bloquée.</span>
+      <span id="bandeau-precision"></span>
+    </p>
+    <div style="display:flex; gap:12px; align-items:center;">
+      <button type="button" class="btn btn--discret" id="bandeau-action-lien" hidden></button>
+      <button type="button" class="btn btn--discret" id="bandeau-fermer">Fermer l'alerte</button>
+    </div>
+  </div>
+
+  <main class="conteneur-principal">
+
+    <!-- ====================================================================
+         ÉCRAN 1 : LA SALLE (REGISTRE DES TABLES 1-16 ET COMPTOIR 1-4)
+         ==================================================================== -->
+    <section id="vue-salle" class="vue-ecran" aria-labelledby="titre-vue-salle">
+      <div class="entete-vue">
+        <div>
+          <h1 class="titre-page" id="titre-vue-salle">État de la salle</h1>
+          <p class="texte-secondaire">
+            Sélectionnez une table ou une place au comptoir pour ouvrir ou reprendre son ticket.
+          </p>
+        </div>
+        <div class="resume-service" aria-label="Synthèse de la soirée">
+          <div class="resume-item">
+            <span class="texte-secondaire">Emplacements occupés :</span>
+            <span class="resume-valeur" id="stat-occupes">0 sur 20</span>
+          </div>
+          <div class="resume-item">
+            <span class="texte-secondaire">En cours non encaissé :</span>
+            <span class="resume-valeur" id="stat-en-cours">0,00 €</span>
+          </div>
+          <div class="resume-item">
+            <span class="texte-secondaire">Encaissé ce soir :</span>
+            <span class="resume-valeur" id="stat-encaisse">0,00 €</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="panneau-registre">
+        <div class="entete-panneau">
+          <h2 class="titre-section">Emplacements du service</h2>
+          <div class="barre-filtres" role="group" aria-label="Filtrer les emplacements">
+            <button type="button" class="btn btn--secondaire est-actif" data-filtre-salle="tous">
+              Tous les emplacements
+            </button>
+            <button type="button" class="btn btn--secondaire" data-filtre-salle="occupees">
+              Tables occupées et à encaisser
+            </button>
+            <button type="button" class="btn btn--secondaire" data-filtre-salle="tables">
+              Tables uniquement
+            </button>
+            <button type="button" class="btn btn--secondaire" data-filtre-salle="comptoir">
+              Comptoir uniquement
+            </button>
+          </div>
+        </div>
+        <ul class="liste-registre" id="liste-emplacements-salle"></ul>
+      </div>
+    </section>
+
+    <!-- ====================================================================
+         ÉCRAN 2 : PRISE DE COMMANDE (CARTE À GAUCHE + TICKET À DROITE)
+         ==================================================================== -->
+    <section id="vue-commande" class="vue-ecran" aria-labelledby="titre-vue-commande" hidden>
+      <div class="entete-vue">
+        <div>
+          <h1 class="titre-page" id="titre-vue-commande">Prise de commande</h1>
+          <p class="texte-secondaire" id="sous-titre-commande">
+            Touchez une ligne de la carte pour l'ajouter immédiatement au ticket.
+          </p>
+        </div>
+        <div style="display:flex; gap:12px; align-items:center; flex-wrap:wrap;">
+          <label for="selecteur-table-rapide" class="champ-libelle">Emplacement actif :</label>
+          <select id="selecteur-table-rapide" class="champ-select"></select>
+          <button type="button" class="btn btn--secondaire" id="btn-retour-salle">
+            Revenir au registre de salle
+          </button>
+        </div>
+      </div>
+
+      <div class="grille-commande">
+        <!-- Colonne gauche : La Carte filtrable par catégorie -->
+        <div>
+          <div class="onglets-categories" id="barre-categories-carte" role="tablist" aria-label="Catégories de la carte"></div>
+
+          <div class="panneau-registre">
+            <div class="entete-panneau">
+              <h2 class="titre-section" id="titre-categorie-active">Toute la carte</h2>
+              <button type="button" class="btn btn--principal" id="btn-ouvrir-formule-direct">
+                Composer une Formule 4 Boissons (10,00 €)
+              </button>
+            </div>
+            <div id="liste-produits-carte"></div>
+          </div>
+        </div>
+
+        <!-- Colonne droite : Le Ticket de caisse (Composant 6.9) -->
+        <aside class="colonne-ticket" aria-label="Ticket de caisse de l'emplacement">
+          <div class="ticket-caisse">
+            <div class="ticket-entete">
+              <div>
+                <div class="reference" id="ticket-reference">ESC-001</div>
+                <h2 class="ticket-lieu" id="ticket-nom-emplacement">Table 1</h2>
+              </div>
+              <div class="ticket-statut-bloc">
+                <span class="ticket-statut-mot" id="ticket-statut-texte">Libre</span>
+                <span class="ticket-statut-heure" id="ticket-statut-heure">Aucune commande ouverte</span>
+              </div>
+            </div>
+
+            <!-- Interrupteur discret Sur place / À emporter -->
+            <div class="ticket-mode-service">
+              <span class="ticket-mode-libelle">Mode de préparation :</span>
+              <div class="ticket-mode-choix" role="group" aria-label="Mode de préparation">
+                <button type="button" class="btn-mode-ticket" id="btn-mode-sur-place" aria-pressed="true">
+                  Sur place
+                </button>
+                <button type="button" class="btn-mode-ticket" id="btn-mode-emporter" aria-pressed="false">
+                  À emporter
+                </button>
+              </div>
+            </div>
+
+            <!-- Lignes du ticket -->
+            <ul class="ticket-lignes" id="ticket-liste-lignes"></ul>
+
+            <!-- Totaux -->
+            <div class="ticket-totaux">
+              <div class="ticket-ligne-sous-total">
+                <span>Nombre d'articles</span>
+                <span id="ticket-nb-articles">0 article</span>
+              </div>
+              <div class="ticket-ligne-total">
+                <span class="ticket-total-libelle">Total à régler</span>
+                <span class="ticket-total-montant" id="ticket-montant-total">0,00 €</span>
+              </div>
+            </div>
+
+            <!-- Actions du ticket -->
+            <div class="ticket-actions">
+              <button type="button" class="btn btn--principal" id="btn-encaisser-ticket">
+                Encaisser le ticket
+              </button>
+              <div class="ticket-actions-secondaires">
+                <button type="button" class="btn-ticket-secondaire" id="btn-marquer-attente">
+                  Marquer en attente de paiement
+                </button>
+                <button type="button" class="btn-ticket-danger" id="btn-vider-ticket">
+                  Vider le ticket
+                </button>
+              </div>
+            </div>
+          </div>
+        </aside>
+      </div>
+    </section>
+
+    <!-- ====================================================================
+         ÉCRAN 3 : PILOTAGE DE LA CARTE ET DE LA SALLE (ADMINISTRATION)
+         ==================================================================== -->
+    <section id="vue-admin" class="vue-ecran" aria-labelledby="titre-vue-admin" hidden>
+      <div class="entete-vue">
+        <div>
+          <h1 class="titre-page" id="titre-vue-admin">Pilotage de la carte et de la salle</h1>
+          <p class="texte-secondaire">
+            Ajoutez un produit manquant, ajustez un tarif en direct ou modifiez les tables. Tout est sauvegardé sur la tablette.
+          </p>
+        </div>
+        <button type="button" class="btn btn--secondaire" id="btn-admin-retour-salle">
+          Revenir à la salle
+        </button>
+      </div>
+
+      <div class="grille-admin">
+        <!-- Panneau 1 : Catalogue des Plats et Boissons -->
+        <div class="panneau-registre">
+          <div class="entete-panneau">
+            <h2 class="titre-section">Catalogue des plats et boissons</h2>
+          </div>
+
+          <form id="form-ajout-produit" class="formulaire-bloc" novalidate>
+            <h3 class="titre-bloc" style="margin-bottom:12px;">Ajouter un produit à la carte</h3>
+            <div class="grille-champs">
+              <div class="champ-groupe">
+                <label class="champ-libelle" for="champ-nom-produit">Nom du produit</label>
+                <span class="champ-aide">Exemple : Castel, Schweppes, Poulet braisé</span>
+                <input type="text" id="champ-nom-produit" class="champ-saisie" required>
+                <span class="champ-erreur-texte" id="erreur-nom-produit" hidden>
+                  Indiquez le nom du plat ou de la boisson (exemple : Bière Castel).
+                </span>
+              </div>
+
+              <div class="champ-groupe">
+                <label class="champ-libelle" for="champ-prix-produit">Prix en euros (€)</label>
+                <span class="champ-aide">Chiffres uniquement (exemple : 3 ou 12,50)</span>
+                <input type="text" inputmode="decimal" id="champ-prix-produit" class="champ-saisie chasse-fixe" required>
+                <span class="champ-erreur-texte" id="erreur-prix-produit" hidden>
+                  Saisissez un montant valide supérieur à 0 (exemple : 3,00).
+                </span>
+              </div>
+
+              <div class="champ-groupe">
+                <label class="champ-libelle" for="champ-categorie-produit">Catégorie</label>
+                <span class="champ-aide">Emplacement de classement sur la carte</span>
+                <select id="champ-categorie-produit" class="champ-select">
+                  <option value="Bières & Jus (Éligibles Formule)">Bières & Jus (Éligibles Formule)</option>
+                  <option value="Bières Africaines & Cocktails">Bières Africaines & Cocktails</option>
+                  <option value="Vins, Champagnes & Bouteilles">Vins, Champagnes & Bouteilles</option>
+                  <option value="Plats & Grillades">Plats & Grillades</option>
+                  <option value="Accompagnements">Accompagnements</option>
+                </select>
+              </div>
+            </div>
+
+            <label class="champ-case-ligne" for="champ-eligible-formule">
+              <input type="checkbox" id="champ-eligible-formule" class="champ-case">
+              <span>Rendre cette boisson éligible à la Formule 4 Boissons à 10,00 €</span>
+            </label>
+
+            <button type="submit" class="btn btn--principal">
+              Ajouter à la carte
+            </button>
+          </form>
+
+          <div id="liste-admin-catalogue"></div>
+        </div>
+
+        <!-- Panneau 2 : Configuration de la Salle & Historique de caisse -->
+        <div>
+          <div class="panneau-registre">
+            <div class="entete-panneau">
+              <h2 class="titre-section">Emplacements de la salle</h2>
+            </div>
+
+            <div class="formulaire-bloc">
+              <h3 class="titre-bloc" style="margin-bottom:8px;">Ajouter un emplacement</h3>
+              <p class="texte-secondaire" style="margin-bottom:16px;">
+                Ajoutez rapidement une table numérotée ou une place au comptoir.
+              </p>
+              <div style="display:flex; gap:12px; flex-wrap:wrap; margin-bottom:16px;">
+                <button type="button" class="btn btn--principal" id="btn-ajouter-table-auto">
+                  Ajouter une table
+                </button>
+                <button type="button" class="btn btn--secondaire" id="btn-ajouter-comptoir-auto">
+                  Ajouter une place au comptoir
+                </button>
+              </div>
+
+              <form id="form-ajout-emplacement-libre" style="display:flex; gap:12px; align-items:flex-end; flex-wrap:wrap;" novalidate>
+                <div class="champ-groupe" style="flex:1; min-width:200px;">
+                  <label class="champ-libelle" for="champ-nom-emplacement">Ou nommer un emplacement précis</label>
+                  <input type="text" id="champ-nom-emplacement" class="champ-saisie">
+                </div>
+                <button type="submit" class="btn btn--secondaire">
+                  Créer l'emplacement
+                </button>
+              </form>
+            </div>
+
+            <ul class="liste-registre" id="liste-admin-salle"></ul>
+          </div>
+
+          <!-- Journal des encaissements de la soirée -->
+          <div class="panneau-registre">
+            <div class="entete-panneau">
+              <h2 class="titre-section">Journal des encaissements de la nuit</h2>
+              <button type="button" class="btn btn--danger" id="btn-cloturer-soiree">
+                Effacer le journal de la soirée
+              </button>
+            </div>
+            <ul class="liste-registre" id="liste-historique-encaissements"></ul>
+          </div>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- ====================================================================
+       MODALE 1 : COMPOSER LA FORMULE 4 BOISSONS À 10,00 €
+       ==================================================================== -->
+  <div id="modale-formule" class="voile-modale" role="dialog" aria-modal="true" aria-labelledby="titre-modale-formule" hidden>
+    <div class="fenetre-modale">
+      <div class="modale-entete">
+        <div>
+          <h2 class="titre-section" id="titre-modale-formule">Formule 4 Boissons à 10,00 €</h2>
+          <p class="texte-secondaire">
+            Sélectionnez exactement 4 boissons (bières à 3 € et jus à 2 € au choix, panachage libre).
+          </p>
+        </div>
+        <span class="reference">10,00 €</span>
+      </div>
+
+      <div class="modale-corps">
+        <div class="compteur-formule-bandeau">
+          <span class="champ-libelle">Boissons sélectionnées dans la formule :</span>
+          <span class="reference" id="compteur-boissons-formule">0 sur 4</span>
+        </div>
+        <div id="liste-boissons-eligibles-formule"></div>
+      </div>
+
+      <div class="modale-pied">
+        <button type="button" class="btn btn--secondaire" id="btn-annuler-formule">
+          Fermer sans ajouter
+        </button>
+        <button type="button" class="btn btn--principal" id="btn-valider-formule" disabled>
+          Ajouter la formule au ticket (10,00 €)
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ====================================================================
+       MODALE 2 : FENÊTRE DE CONFIRMATION POUR ACTION IRRÉVERSIBLE (6.6)
+       ==================================================================== -->
+  <div id="modale-confirmation" class="voile-modale" role="dialog" aria-modal="true" aria-labelledby="titre-modale-confirmation" hidden>
+    <div class="fenetre-modale" style="max-width:520px;">
+      <div class="modale-entete">
+        <h2 class="titre-section" id="titre-modale-confirmation">Confirmer l'action</h2>
+      </div>
+      <div class="modale-corps">
+        <p id="texte-modale-confirmation"></p>
+      </div>
+      <div class="modale-pied">
+        <button type="button" class="btn btn--secondaire" id="btn-confirmation-garder">
+          Garder en l'état
+        </button>
+        <button type="button" class="btn btn--danger" id="btn-confirmation-detruire">
+          Confirmer
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Zone des messages temporaires en bas à gauche (Composant 6.6) -->
+  <div class="zone-messages" id="zone-messages" aria-live="polite"></div>
+
+  <script src="app.js"></script>
+</body>
+</html>

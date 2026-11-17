@@ -1,0 +1,1119 @@
+/* ==========================================================================
+   L'ESCALE 241 — FEUILLE DE STYLE PRINCIPALE (styles.css)
+   Respect strict de la charte :
+   - Zéro emoji, zéro pastille de statut, zéro flèche dans les boutons
+   - Listes, tableaux et files d'attente plutôt que grilles de cartes IA
+   - Un seul élément mémorable : le Ticket de caisse à bord dentelé
+   ========================================================================== */
+
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html {
+  font-size: 100%;
+  -webkit-text-size-adjust: 100%;
+  background-color: var(--fond);
+  color: var(--texte);
+  font-family: var(--font-texte);
+}
+
+body {
+  min-height: 100vh;
+  background-color: var(--fond);
+  color: var(--texte);
+  font-family: var(--font-texte);
+  font-size: var(--taille-corps);
+  line-height: var(--ligne-corps);
+  overflow-x: hidden;
+  padding-bottom: var(--espace-12);
+}
+
+/* Focus accessible et très visible (3px) */
+:focus-visible {
+  outline: 3px solid var(--croix-fonce);
+  outline-offset: 2px;
+}
+
+/* Chiffres tabulaires pour l'alignement strict des prix, quantités et heures */
+.chasse-fixe {
+  font-family: var(--font-code);
+  font-variant-numeric: tabular-nums;
+}
+
+.reference {
+  font-family: var(--font-code);
+  font-weight: 700;
+  font-size: var(--taille-reference);
+  line-height: var(--ligne-reference);
+  letter-spacing: 0.03em;
+  font-variant-numeric: tabular-nums;
+}
+
+/* Typographie — La Notice */
+.titre-page {
+  font-family: var(--font-titre);
+  font-weight: 700;
+  font-size: var(--taille-titre-page);
+  line-height: var(--ligne-titre-page);
+  color: var(--encre);
+}
+
+.titre-section {
+  font-family: var(--font-titre);
+  font-weight: 600;
+  font-size: var(--taille-titre-section);
+  line-height: var(--ligne-titre-section);
+  color: var(--encre);
+}
+
+.titre-bloc {
+  font-family: var(--font-texte);
+  font-weight: 700;
+  font-size: var(--taille-titre-bloc);
+  line-height: var(--ligne-titre-bloc);
+  color: var(--encre);
+}
+
+.texte-secondaire {
+  color: var(--texte-secondaire);
+  font-size: var(--taille-petit);
+  line-height: var(--ligne-petit);
+}
+
+/* ==========================================================================
+   EN-TÊTE ET NAVIGATION PRINCIPALE
+   ========================================================================== */
+.entete-app {
+  background-color: var(--surface);
+  border-bottom: 1px solid var(--trait);
+  padding: var(--espace-3) var(--espace-6);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--espace-4);
+  flex-wrap: wrap;
+}
+
+.marque-bloc {
+  display: flex;
+  align-items: baseline;
+  gap: var(--espace-3);
+}
+
+.marque-titre {
+  font-family: var(--font-titre);
+  font-weight: 700;
+  font-size: var(--taille-titre-section);
+  line-height: var(--ligne-titre-section);
+  color: var(--encre);
+}
+
+.marque-sous-titre {
+  font-size: var(--taille-petit);
+  line-height: var(--ligne-petit);
+  color: var(--texte-secondaire);
+}
+
+.nav-principale {
+  display: flex;
+  align-items: center;
+  gap: var(--espace-3);
+  flex-wrap: wrap;
+}
+
+/* ==========================================================================
+   BANDEAU D'ALERTE PLEINE LARGEUR (Composant 6.1)
+   ========================================================================== */
+.bandeau-alerte {
+  width: 100%;
+  border-top: 1px solid var(--trait-fort);
+  border-bottom: 1px solid var(--trait-fort);
+  padding: var(--espace-3) var(--espace-6);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--espace-4);
+  flex-wrap: wrap;
+}
+
+.bandeau-alerte[ hidden ] {
+  display: none;
+}
+
+.bandeau-alerte--erreur {
+  background-color: var(--erreur-claire);
+  border-color: var(--erreur);
+}
+
+.bandeau-alerte--ocre {
+  background-color: var(--ocre-claire);
+  border-color: var(--ocre);
+}
+
+.bandeau-texte {
+  font-size: var(--taille-corps);
+  line-height: var(--ligne-corps);
+  color: var(--encre);
+  max-width: 75ch;
+}
+
+.bandeau-fait {
+  font-weight: 700;
+}
+
+/* ==========================================================================
+   BOUTONS (Composant 6.2 — 4 sortes : Principal, Secondaire, Discret, Danger)
+   ========================================================================== */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: var(--hauteur-tactile);
+  padding: var(--espace-2) var(--espace-4);
+  font-family: var(--font-texte);
+  font-size: var(--taille-corps);
+  line-height: var(--ligne-corps);
+  font-weight: 600;
+  border-radius: var(--arrondi-bouton);
+  cursor: pointer;
+  text-decoration: none;
+  transition: background-color 140ms ease, border-color 140ms ease;
+  user-select: none;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.btn--principal {
+  background-color: var(--croix);
+  color: var(--croix-texte);
+  border: 1px solid var(--croix);
+  font-weight: 700;
+}
+
+.btn--principal:hover,
+.btn--principal:active {
+  background-color: var(--croix-fonce);
+  border-color: var(--croix-fonce);
+}
+
+.btn--secondaire {
+  background-color: transparent;
+  color: var(--encre);
+  border: 1px solid var(--trait-fort);
+}
+
+.btn--secondaire:hover,
+.btn--secondaire:active {
+  background-color: var(--surface-haute);
+}
+
+.btn--secondaire.est-actif {
+  background-color: var(--croix-claire);
+  border-color: var(--croix-fonce);
+  color: var(--encre);
+  font-weight: 700;
+}
+
+.btn--discret {
+  background: transparent;
+  border: none;
+  color: var(--croix-fonce);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  padding: var(--espace-2) var(--espace-3);
+  min-height: 44px;
+}
+
+.btn--discret:hover {
+  color: var(--encre);
+}
+
+.btn--danger {
+  background-color: transparent;
+  color: var(--erreur);
+  border: 1px solid var(--erreur);
+}
+
+.btn--danger:hover,
+.btn--danger:active {
+  background-color: var(--erreur-claire);
+}
+
+.btn:disabled {
+  background-color: var(--neutre-claire);
+  color: var(--texte-secondaire);
+  border-color: var(--trait);
+  cursor: not-allowed;
+}
+
+/* ==========================================================================
+   STATUTS EN TOUTES LETTRES (Composant 6.8 — Jamais en pastille)
+   ========================================================================== */
+.statut-ligne {
+  display: inline-flex;
+  align-items: baseline;
+  gap: var(--espace-2);
+  flex-wrap: wrap;
+}
+
+.statut-mot {
+  font-family: var(--font-texte);
+  font-size: var(--taille-statut);
+  line-height: var(--ligne-statut);
+  font-weight: 600;
+}
+
+.statut-mot--neutre {
+  color: var(--texte-secondaire);
+}
+
+.statut-mot--succes {
+  color: var(--succes);
+}
+
+.statut-mot--attente {
+  color: var(--ocre);
+}
+
+.statut-mot--alerte {
+  color: var(--ocre);
+  font-weight: 700;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.statut-mot--erreur {
+  color: var(--erreur);
+  font-weight: 700;
+}
+
+.statut-temps {
+  font-size: var(--taille-petit);
+  line-height: var(--ligne-petit);
+  color: var(--texte-secondaire);
+  font-variant-numeric: tabular-nums;
+}
+
+/* ==========================================================================
+   STRUCTURE DES VUES
+   ========================================================================== */
+.conteneur-principal {
+  max-width: 1360px;
+  margin: 0 auto;
+  padding: var(--espace-6);
+}
+
+.vue-ecran[hidden] {
+  display: none !important;
+}
+
+.entete-vue {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: var(--espace-4);
+  margin-bottom: var(--espace-6);
+  padding-bottom: var(--espace-4);
+  border-bottom: 1px solid var(--trait);
+  flex-wrap: wrap;
+}
+
+.resume-service {
+  display: flex;
+  align-items: baseline;
+  gap: var(--espace-6);
+  flex-wrap: wrap;
+}
+
+.resume-item {
+  display: flex;
+  align-items: baseline;
+  gap: var(--espace-2);
+}
+
+.resume-valeur {
+  font-weight: 700;
+  color: var(--encre);
+  font-variant-numeric: tabular-nums;
+}
+
+/* ==========================================================================
+   PANNEAUX ET LISTES DE REGISTRE (Composant 6.5 FileDemandes)
+   ========================================================================== */
+.panneau-registre {
+  background-color: var(--surface);
+  border: 1px solid var(--trait);
+  border-radius: var(--arrondi-panneau);
+  overflow: hidden;
+  margin-bottom: var(--espace-6);
+}
+
+.entete-panneau {
+  padding: var(--espace-4) var(--espace-6);
+  border-bottom: 1px solid var(--trait);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--espace-4);
+  flex-wrap: wrap;
+}
+
+.barre-filtres {
+  display: flex;
+  align-items: center;
+  gap: var(--espace-2);
+  flex-wrap: wrap;
+}
+
+.liste-registre {
+  list-style: none;
+}
+
+.ligne-registre {
+  display: grid;
+  grid-template-columns: minmax(130px, 1.1fr) minmax(210px, 1.8fr) minmax(180px, 2fr) minmax(100px, 0.9fr) auto;
+  align-items: center;
+  gap: var(--espace-4);
+  padding: var(--espace-3) var(--espace-6);
+  border-bottom: 1px solid var(--trait);
+  min-height: 60px;
+  transition: background-color 120ms ease;
+}
+
+.ligne-registre:last-child {
+  border-bottom: none;
+}
+
+.ligne-registre:hover {
+  background-color: var(--surface-haute);
+}
+
+.ligne-registre--active {
+  background-color: var(--info-claire);
+}
+
+.cellule-nom {
+  font-weight: 700;
+  color: var(--encre);
+  font-size: var(--taille-corps);
+}
+
+.cellule-apercu {
+  color: var(--texte-secondaire);
+  font-size: var(--taille-petit);
+  line-height: var(--ligne-petit);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.cellule-montant {
+  text-align: right;
+  font-weight: 700;
+  color: var(--encre);
+  font-variant-numeric: tabular-nums;
+}
+
+.cellule-action {
+  display: flex;
+  justify-content: flex-end;
+  gap: var(--espace-2);
+}
+
+/* ==========================================================================
+   VUE 2 : PRISE DE COMMANDE (SPLIT-SCREEN : CARTE 60% / TICKET 40%)
+   ========================================================================== */
+.grille-commande {
+  display: grid;
+  grid-template-columns: 1.45fr 1fr;
+  gap: var(--espace-6);
+  align-items: start;
+}
+
+.onglets-categories {
+  display: flex;
+  gap: var(--espace-2);
+  overflow-x: auto;
+  padding-bottom: var(--espace-3);
+  margin-bottom: var(--espace-4);
+  border-bottom: 1px solid var(--trait);
+}
+
+.ligne-produit-carte {
+  width: 100%;
+  background: transparent;
+  border: none;
+  border-bottom: 1px solid var(--trait);
+  padding: var(--espace-3) var(--espace-6);
+  min-height: 56px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--espace-4);
+  text-align: left;
+  color: var(--texte);
+  font-family: var(--font-texte);
+  font-size: var(--taille-corps);
+  cursor: pointer;
+  transition: background-color 120ms ease;
+}
+
+.ligne-produit-carte:last-child {
+  border-bottom: none;
+}
+
+.ligne-produit-carte:hover,
+.ligne-produit-carte:active {
+  background-color: var(--surface-haute);
+}
+
+.produit-infos {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.produit-nom {
+  font-weight: 700;
+  color: var(--encre);
+}
+
+.produit-precision {
+  font-size: var(--taille-petit);
+  line-height: var(--ligne-petit);
+  color: var(--texte-secondaire);
+}
+
+.produit-droite {
+  display: flex;
+  align-items: center;
+  gap: var(--espace-4);
+  flex-shrink: 0;
+}
+
+.produit-prix {
+  font-weight: 700;
+  color: var(--encre);
+  font-variant-numeric: tabular-nums;
+  min-width: 72px;
+  text-align: right;
+}
+
+.produit-action-mot {
+  color: var(--croix-fonce);
+  font-size: var(--taille-petit);
+  font-weight: 600;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+/* ==========================================================================
+   COMPOSANT 6.9 : LE TICKET DE CAISSE (Élément mémorable unique)
+   Angles du haut presque droits, bord du bas dentelé, séparations pointillées
+   ========================================================================== */
+.colonne-ticket {
+  position: sticky;
+  top: var(--espace-4);
+}
+
+.ticket-caisse {
+  background-color: var(--ticket-surface);
+  color: var(--ticket-texte);
+  border: 1px solid var(--ticket-trait);
+  border-bottom: none;
+  border-radius: 2px 2px 0 0;
+  padding: var(--espace-6);
+  position: relative;
+}
+
+/* Bord du bas dentelé authentique */
+.ticket-caisse::after {
+  content: "";
+  position: absolute;
+  left: -1px;
+  right: -1px;
+  bottom: -12px;
+  height: 12px;
+  background:
+    linear-gradient(-45deg, transparent 8px, var(--ticket-surface) 0) 0 0,
+    linear-gradient(45deg, transparent 8px, var(--ticket-surface) 0) 0 0;
+  background-repeat: repeat-x;
+  background-size: 16px 12px;
+  filter: drop-shadow(0 1px 0 var(--ticket-trait));
+}
+
+.ticket-entete {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: var(--espace-3);
+  padding-bottom: var(--espace-4);
+  border-bottom: 1px dashed var(--ticket-trait);
+}
+
+.ticket-lieu {
+  font-family: var(--font-titre);
+  font-weight: 700;
+  font-size: var(--taille-titre-section);
+  line-height: var(--ligne-titre-section);
+  color: var(--ticket-texte);
+  margin-top: var(--espace-1);
+}
+
+.ticket-statut-bloc {
+  text-align: right;
+}
+
+.ticket-statut-mot {
+  font-weight: 700;
+  font-size: var(--taille-statut);
+  color: var(--ticket-texte);
+  display: block;
+}
+
+.ticket-statut-heure {
+  font-size: var(--taille-petit);
+  color: var(--ticket-secondaire);
+  font-variant-numeric: tabular-nums;
+}
+
+/* Sélecteur de mode de service intégré au ticket (Sur place / À emporter) */
+.ticket-mode-service {
+  padding: var(--espace-3) 0;
+  border-bottom: 1px dashed var(--ticket-trait);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--espace-3);
+  flex-wrap: wrap;
+}
+
+.ticket-mode-libelle {
+  font-weight: 700;
+  font-size: var(--taille-petit);
+  color: var(--ticket-secondaire);
+}
+
+.ticket-mode-choix {
+  display: inline-flex;
+  gap: var(--espace-2);
+}
+
+.btn-mode-ticket {
+  min-height: 44px;
+  padding: var(--espace-1) var(--espace-3);
+  border: 1px solid var(--ticket-trait);
+  border-radius: var(--arrondi-champ);
+  background: transparent;
+  color: var(--ticket-texte);
+  font-family: var(--font-texte);
+  font-size: var(--taille-petit);
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.btn-mode-ticket[aria-pressed="true"] {
+  background-color: var(--ticket-texte);
+  color: var(--ticket-surface);
+  border-color: var(--ticket-texte);
+}
+
+/* Lignes d'articles sur le ticket */
+.ticket-lignes {
+  list-style: none;
+  padding: var(--espace-3) 0;
+  border-bottom: 1px dashed var(--ticket-trait);
+  min-height: 160px;
+  max-height: 400px;
+  overflow-y: auto;
+}
+
+.ticket-ligne {
+  padding: var(--espace-2) 0;
+  border-bottom: 1px dotted rgba(125, 134, 129, 0.45);
+  display: flex;
+  flex-direction: column;
+  gap: var(--espace-1);
+}
+
+.ticket-ligne:last-child {
+  border-bottom: none;
+}
+
+.ticket-ligne-principale {
+  display: grid;
+  grid-template-columns: 36px 1fr auto;
+  align-items: baseline;
+  gap: var(--espace-2);
+}
+
+.ticket-qte {
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  color: var(--ticket-texte);
+}
+
+.ticket-designation {
+  font-weight: 600;
+  color: var(--ticket-texte);
+}
+
+.ticket-montant {
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  text-align: right;
+  color: var(--ticket-texte);
+}
+
+.ticket-detail-formule {
+  padding-left: 44px;
+  font-size: var(--taille-petit);
+  line-height: var(--ligne-petit);
+  color: var(--ticket-secondaire);
+}
+
+.ticket-controles-ligne {
+  padding-left: 44px;
+  display: flex;
+  align-items: center;
+  gap: var(--espace-2);
+  margin-top: var(--espace-1);
+}
+
+.btn-qte-ticket {
+  min-width: 44px;
+  min-height: 44px;
+  padding: 0 var(--espace-2);
+  border: 1px solid var(--ticket-trait);
+  border-radius: var(--arrondi-champ);
+  background-color: transparent;
+  color: var(--ticket-texte);
+  font-family: var(--font-code);
+  font-size: var(--taille-petit);
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.btn-qte-ticket:hover,
+.btn-qte-ticket:active {
+  background-color: var(--ticket-info-fond);
+}
+
+.btn-retirer-ligne {
+  margin-left: auto;
+  min-height: 44px;
+  padding: 0 var(--espace-2);
+  background: transparent;
+  border: none;
+  color: #9e221b;
+  font-family: var(--font-texte);
+  font-size: var(--taille-petit);
+  font-weight: 600;
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+/* État vide du ticket (Composant 6.4) */
+.etat-vide-ticket {
+  padding: var(--espace-6) 0;
+  text-align: left;
+}
+
+.etat-vide-titre {
+  font-weight: 700;
+  color: var(--ticket-texte);
+  margin-bottom: var(--espace-1);
+}
+
+.etat-vide-texte {
+  font-size: var(--taille-petit);
+  line-height: var(--ligne-petit);
+  color: var(--ticket-secondaire);
+}
+
+/* Sommes et pied du ticket */
+.ticket-totaux {
+  padding-top: var(--espace-4);
+  display: flex;
+  flex-direction: column;
+  gap: var(--espace-2);
+}
+
+.ticket-ligne-sous-total {
+  display: flex;
+  justify-content: space-between;
+  font-size: var(--taille-petit);
+  color: var(--ticket-secondaire);
+  font-variant-numeric: tabular-nums;
+}
+
+.ticket-ligne-total {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  padding-top: var(--espace-2);
+  border-top: 1px dashed var(--ticket-trait);
+}
+
+.ticket-total-libelle {
+  font-family: var(--font-titre);
+  font-weight: 700;
+  font-size: var(--taille-titre-section);
+  color: var(--ticket-texte);
+}
+
+.ticket-total-montant {
+  font-family: var(--font-code);
+  font-weight: 700;
+  font-size: var(--taille-total-ticket);
+  line-height: var(--ligne-total-ticket);
+  font-variant-numeric: tabular-nums;
+  color: var(--ticket-texte);
+}
+
+.ticket-actions {
+  margin-top: var(--espace-6);
+  display: flex;
+  flex-direction: column;
+  gap: var(--espace-3);
+}
+
+.ticket-actions-secondaires {
+  display: flex;
+  justify-content: space-between;
+  gap: var(--espace-2);
+  flex-wrap: wrap;
+}
+
+.btn-ticket-secondaire {
+  min-height: 44px;
+  padding: var(--espace-2) var(--espace-3);
+  border: 1px solid var(--ticket-trait);
+  border-radius: var(--arrondi-bouton);
+  background: transparent;
+  color: var(--ticket-texte);
+  font-family: var(--font-texte);
+  font-weight: 600;
+  font-size: var(--taille-petit);
+  cursor: pointer;
+}
+
+.btn-ticket-danger {
+  min-height: 44px;
+  padding: var(--espace-2) var(--espace-3);
+  border: 1px solid #9e221b;
+  border-radius: var(--arrondi-bouton);
+  background: transparent;
+  color: #9e221b;
+  font-family: var(--font-texte);
+  font-weight: 600;
+  font-size: var(--taille-petit);
+  cursor: pointer;
+}
+
+/* ==========================================================================
+   CHAMPS ET FORMULAIRES — VUE ADMIN (Composant 6.3)
+   ========================================================================== */
+.grille-admin {
+  display: grid;
+  grid-template-columns: 1.3fr 1fr;
+  gap: var(--espace-6);
+  align-items: start;
+}
+
+.formulaire-bloc {
+  padding: var(--espace-6);
+  border-bottom: 1px solid var(--trait);
+  background-color: var(--surface-haute);
+}
+
+.grille-champs {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: var(--espace-4);
+  margin-bottom: var(--espace-4);
+}
+
+.champ-groupe {
+  display: flex;
+  flex-direction: column;
+  gap: var(--espace-1);
+}
+
+.champ-libelle {
+  font-weight: 700;
+  font-size: var(--taille-corps);
+  line-height: var(--ligne-corps);
+  color: var(--encre);
+}
+
+.champ-aide {
+  font-size: var(--taille-petit);
+  line-height: var(--ligne-petit);
+  color: var(--texte-secondaire);
+}
+
+.champ-saisie,
+.champ-select {
+  height: var(--hauteur-tactile);
+  padding: 0 var(--espace-3);
+  background-color: var(--fond);
+  border: 1px solid var(--trait-fort);
+  border-radius: var(--arrondi-champ);
+  color: var(--encre);
+  font-family: var(--font-texte);
+  font-size: var(--taille-corps);
+}
+
+.champ-saisie:focus,
+.champ-select:focus {
+  outline: none;
+  border: 2px solid var(--encre);
+}
+
+.champ-saisie.en-erreur {
+  border: 2px solid var(--erreur);
+}
+
+.champ-erreur-texte {
+  font-size: var(--taille-petit);
+  line-height: var(--ligne-petit);
+  color: var(--erreur);
+  font-weight: 600;
+}
+
+.champ-erreur-texte[hidden] {
+  display: none;
+}
+
+.champ-case-ligne {
+  display: flex;
+  align-items: center;
+  gap: var(--espace-3);
+  min-height: var(--hauteur-tactile);
+  cursor: pointer;
+  margin-bottom: var(--espace-4);
+}
+
+.champ-case {
+  width: 22px;
+  height: 22px;
+  accent-color: var(--croix);
+}
+
+/* Lignes d'administration du catalogue */
+.ligne-admin-catalogue {
+  display: grid;
+  grid-template-columns: 1.5fr 1fr auto auto;
+  align-items: center;
+  gap: var(--espace-3);
+  padding: var(--espace-3) var(--espace-6);
+  border-bottom: 1px solid var(--trait);
+  min-height: 58px;
+}
+
+.ligne-admin-catalogue:last-child {
+  border-bottom: none;
+}
+
+.groupe-prix-inline {
+  display: flex;
+  align-items: center;
+  gap: var(--espace-2);
+}
+
+.champ-prix-inline {
+  width: 92px;
+  height: 44px;
+  padding: 0 var(--espace-2);
+  background-color: var(--fond);
+  border: 1px solid var(--trait-fort);
+  border-radius: var(--arrondi-champ);
+  color: var(--encre);
+  font-family: var(--font-code);
+  font-size: var(--taille-corps);
+  font-variant-numeric: tabular-nums;
+  text-align: right;
+}
+
+/* ==========================================================================
+   FENÊTRES MODALES : FORMULE 4 BOISSONS (10 €) & CONFIRMATION (Composant 6.6)
+   ========================================================================== */
+.voile-modale {
+  position: fixed;
+  inset: 0;
+  background-color: var(--voile);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--espace-4);
+  z-index: 100;
+}
+
+.voile-modale[hidden] {
+  display: none !important;
+}
+
+.fenetre-modale {
+  background-color: var(--surface);
+  border: 1px solid var(--trait-fort);
+  border-radius: var(--arrondi-panneau);
+  box-shadow: var(--ombre-flottante);
+  width: 100%;
+  max-width: 680px;
+  max-height: 90vh;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.modale-entete {
+  padding: var(--espace-4) var(--espace-6);
+  border-bottom: 1px solid var(--trait);
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: var(--espace-4);
+}
+
+.modale-corps {
+  padding: var(--espace-6);
+  overflow-y: auto;
+}
+
+.modale-pied {
+  padding: var(--espace-4) var(--espace-6);
+  border-top: 1px solid var(--trait);
+  display: flex;
+  justify-content: flex-end;
+  gap: var(--espace-3);
+  flex-wrap: wrap;
+}
+
+.compteur-formule-bandeau {
+  background-color: var(--surface-haute);
+  border: 1px solid var(--trait-fort);
+  border-radius: var(--arrondi-champ);
+  padding: var(--espace-3) var(--espace-4);
+  margin-bottom: var(--espace-4);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.ligne-choix-boisson {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--espace-2) 0;
+  border-bottom: 1px solid var(--trait);
+  min-height: 52px;
+}
+
+.controles-choix-boisson {
+  display: flex;
+  align-items: center;
+  gap: var(--espace-3);
+}
+
+/* ==========================================================================
+   MESSAGES TEMPORAIRES EN BAS À GAUCHE (Composant 6.6)
+   ========================================================================== */
+.zone-messages {
+  position: fixed;
+  bottom: var(--espace-4);
+  left: var(--espace-6);
+  z-index: 120;
+  display: flex;
+  flex-direction: column;
+  gap: var(--espace-2);
+  max-width: 460px;
+}
+
+.message-temporaire {
+  padding: var(--espace-3) var(--espace-4);
+  border-radius: var(--arrondi-bouton);
+  box-shadow: var(--ombre-flottante);
+  color: var(--encre);
+  font-size: var(--taille-petit);
+  line-height: var(--ligne-petit);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--espace-4);
+  border: 1px solid var(--trait-fort);
+}
+
+.message-temporaire--info {
+  background-color: var(--surface-haute);
+}
+
+.message-temporaire--succes {
+  background-color: #124d2e;
+  border-color: var(--succes);
+}
+
+.message-temporaire--erreur {
+  background-color: #5c1915;
+  border-color: var(--erreur);
+}
+
+.btn-message-action {
+  background: transparent;
+  border: none;
+  color: var(--encre);
+  font-family: var(--font-texte);
+  font-weight: 700;
+  font-size: var(--taille-petit);
+  text-decoration: underline;
+  cursor: pointer;
+  min-height: 36px;
+  padding: 0 var(--espace-2);
+}
+
+/* ==========================================================================
+   ADAPTATION TABLETTE (Honor Pad 9 Paysage & Portrait) ET PETIT ÉCRAN
+   ========================================================================== */
+@media (max-width: 1024px) {
+  .grille-commande,
+  .grille-admin {
+    grid-template-columns: 1fr;
+  }
+
+  .colonne-ticket {
+    position: static;
+  }
+
+  .ligne-registre {
+    grid-template-columns: 1fr 1.4fr auto;
+    row-gap: var(--espace-2);
+  }
+
+  .cellule-apercu {
+    grid-column: 1 / -1;
+  }
+}
+
+@media (max-width: 640px) {
+  .conteneur-principal {
+    padding: var(--espace-4);
+  }
+
+  .ligne-registre {
+    grid-template-columns: 1fr auto;
+  }
+
+  .ligne-admin-catalogue {
+    grid-template-columns: 1fr;
+    gap: var(--espace-2);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    transition: none !important;
+    animation: none !important;
+  }
+}
