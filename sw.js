@@ -1,4 +1,4 @@
-const NOM_CACHE = 'escale-241-pos-v2';
+const NOM_CACHE = 'escale-241-pos-v3';
 const FICHIERS_CACHE = [
   './',
   './index.html',
