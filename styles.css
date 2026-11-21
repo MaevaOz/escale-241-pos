@@ -394,6 +394,11 @@ body {
   background-color: var(--info-claire);
 }
 
+.ligne-registre--payee {
+  background-color: var(--succes-claire);
+  box-shadow: inset 4px 0 0 var(--succes);
+}
+
 .cellule-nom {
   font-weight: 700;
   color: var(--encre);
