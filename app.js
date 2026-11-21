@@ -5,6 +5,7 @@
    - escale_salle_v1     : Tables 1 à 16 et Comptoir 1 à 4
    - escale_commandes_v1 : Tickets actifs par emplacement
    - escale_historique_v1: Journal des encaissements de la soirée
+   - escale_payees_v1    : Tables payées dont les clients sont peut-être encore là
    ========================================================================== */
 
 (function () {
@@ -15,7 +16,8 @@
     SALLE: 'escale_salle_v1',
     COMMANDES: 'escale_commandes_v1',
     HISTORIQUE: 'escale_historique_v1',
-    COMPTEUR_REF: 'escale_compteur_ref_v1'
+    COMPTEUR_REF: 'escale_compteur_ref_v1',
+    PAYEES: 'escale_payees_v1'
   };
 
   /* ------------------------------------------------------------------------
@@ -93,6 +95,9 @@
   let commandes = chargerDepuisStockage(CLES_STOCKAGE.COMMANDES, {});
   let historique = chargerDepuisStockage(CLES_STOCKAGE.HISTORIQUE, []);
   let compteurRef = chargerDepuisStockage(CLES_STOCKAGE.COMPTEUR_REF, 101);
+  // Tables encaissées (sur place) : { emplacementId: { reference, heure, montant } }
+  // Reste affiché sur l'écran de salle jusqu'à ce que la table soit libérée ou rouverte.
+  let payees = chargerDepuisStockage(CLES_STOCKAGE.PAYEES, {});
 
   let emplacementActifId = salle.length > 0 ? salle[0].id : null;
   let filtreSalleActif = 'tous';
@@ -119,6 +124,7 @@
       localStorage.setItem(CLES_STOCKAGE.COMMANDES, JSON.stringify(commandes));
       localStorage.setItem(CLES_STOCKAGE.HISTORIQUE, JSON.stringify(historique));
       localStorage.setItem(CLES_STOCKAGE.COMPTEUR_REF, JSON.stringify(compteurRef));
+      localStorage.setItem(CLES_STOCKAGE.PAYEES, JSON.stringify(payees));
     } catch (e) {
       afficherBandeauAlerte('Sauvegarde locale indisponible.', 'Vérifiez l’espace disponible sur la tablette.');
     }
@@ -329,7 +335,15 @@
   /* ------------------------------------------------------------------------
      6. RENDU DE LA VUE 1 : ÉTAT DE LA SALLE (REGISTRE)
      ------------------------------------------------------------------------ */
-  function obtenirStatutLisible(cmd) {
+  function obtenirStatutLisible(cmd, empId) {
+    const paiement = empId ? payees[empId] : null;
+    if ((!cmd || cmd.lignes.length === 0 || cmd.statut === 'libre') && paiement) {
+      return {
+        mot: 'Payée',
+        classeTon: 'statut-mot--succes',
+        repereTemps: 'à ' + paiement.heure + ' (' + formaterEuros(paiement.montant) + ')'
+      };
+    }
     if (!cmd || cmd.lignes.length === 0 || cmd.statut === 'libre') {
       return {
         mot: 'Libre',
@@ -375,11 +389,13 @@
     document.getElementById('stat-occupes').textContent = nbOccupes + ' sur ' + salle.length;
     document.getElementById('stat-en-cours').textContent = formaterEuros(totalEnCours);
     document.getElementById('stat-encaisse').textContent = formaterEuros(totalEncaisseSoir);
+    rendreDerniersEncaissements();
 
     const emplacementsFiltres = salle.filter(function (emp) {
       const cmd = commandes[emp.id];
       const estOccupe = cmd && cmd.lignes && cmd.lignes.length > 0;
       if (filtreSalleActif === 'occupees') return estOccupe;
+      if (filtreSalleActif === 'payees') return !estOccupe && !!payees[emp.id];
       if (filtreSalleActif === 'tables') return emp.type === 'table';
       if (filtreSalleActif === 'comptoir') return emp.type === 'comptoir';
       return true;
@@ -398,13 +414,14 @@
     // La première ligne occupée reçoit un accent visuel subtil
     emplacementsFiltres.forEach(function (emp) {
       const cmd = obtenirOuCreerCommande(emp.id);
-      const statutInfo = obtenirStatutLisible(cmd);
+      const statutInfo = obtenirStatutLisible(cmd, emp.id);
       const total = calculerTotalCommande(cmd);
       const nbArticles = compterArticlesCommande(cmd);
       const estOccupe = nbArticles > 0;
+      const paiement = (!estOccupe && payees[emp.id]) ? payees[emp.id] : null;
 
       const li = document.createElement('li');
-      li.className = 'ligne-registre' + (estOccupe ? ' ligne-registre--active' : '');
+      li.className = 'ligne-registre' + (estOccupe ? ' ligne-registre--active' : '') + (paiement ? ' ligne-registre--payee' : '');
 
       const divNom = document.createElement('div');
       divNom.className = 'cellule-nom';
@@ -428,13 +445,15 @@
           return l.quantite + 'x ' + l.nom;
         }).join(', ');
         divApercu.textContent = cmd.reference + ' — ' + resumePlats;
+      } else if (paiement) {
+        divApercu.textContent = 'Ticket ' + paiement.reference + ' encaissé, les clients peuvent encore être à table';
       } else {
         divApercu.textContent = 'Prête à accueillir des clients';
       }
 
       const divMontant = document.createElement('div');
       divMontant.className = 'cellule-montant';
-      divMontant.textContent = formaterEuros(total);
+      divMontant.textContent = formaterEuros(paiement ? paiement.montant : total);
 
       const divAction = document.createElement('div');
       divAction.className = 'cellule-action';
@@ -446,6 +465,22 @@
         emplacementActifId = emp.id;
         afficherVue('commande');
       });
+      if (paiement) {
+        divAction.style.display = 'flex';
+        divAction.style.gap = '8px';
+        divAction.style.flexWrap = 'wrap';
+        const btnLiberer = document.createElement('button');
+        btnLiberer.type = 'button';
+        btnLiberer.className = 'btn btn--principal';
+        btnLiberer.textContent = 'Libérer la table';
+        btnLiberer.addEventListener('click', function () {
+          delete payees[emp.id];
+          sauvegarderTout();
+          rendreVueSalle();
+          afficherMessageTemporaire(emp.nom + ' libérée.', 'info');
+        });
+        divAction.appendChild(btnLiberer);
+      }
       divAction.appendChild(btnOuvrir);
 
       li.appendChild(divNom);
@@ -453,6 +488,52 @@
       li.appendChild(divApercu);
       li.appendChild(divMontant);
       li.appendChild(divAction);
+      listeEl.appendChild(li);
+    });
+  }
+
+  // Derniers encaissements, visibles directement depuis l'écran de salle
+  function rendreDerniersEncaissements() {
+    const listeEl = document.getElementById('liste-derniers-encaissements');
+    if (!listeEl) return;
+    listeEl.innerHTML = '';
+
+    if (historique.length === 0) {
+      const liVide = document.createElement('li');
+      liVide.style.padding = '24px';
+      liVide.innerHTML =
+        '<p class="titre-bloc">Aucun encaissement pour le moment</p>' +
+        '<p class="texte-secondaire" style="margin-top:4px;">Les tickets encaissés apparaîtront ici avec leur table et leur heure.</p>';
+      listeEl.appendChild(liVide);
+      return;
+    }
+
+    historique.slice(0, 10).forEach(function (h) {
+      const li = document.createElement('li');
+      li.className = 'ligne-registre';
+      li.style.gridTemplateColumns = '1fr 1.8fr auto';
+
+      const divNom = document.createElement('div');
+      const nom = document.createElement('span');
+      nom.className = 'cellule-nom';
+      nom.textContent = h.emplacementNom;
+      const heure = document.createElement('span');
+      heure.className = 'statut-temps';
+      heure.textContent = ' payé à ' + h.heureEncaissement;
+      divNom.appendChild(nom);
+      divNom.appendChild(heure);
+
+      const divResume = document.createElement('div');
+      divResume.className = 'cellule-apercu';
+      divResume.textContent = h.reference + ' — ' + h.resume;
+
+      const divMontant = document.createElement('div');
+      divMontant.className = 'cellule-montant';
+      divMontant.textContent = formaterEuros(h.montant);
+
+      li.appendChild(divNom);
+      li.appendChild(divResume);
+      li.appendChild(divMontant);
       listeEl.appendChild(li);
     });
   }
@@ -586,6 +667,9 @@
     const cmd = obtenirOuCreerCommande(emplacementActifId);
     const maintenant = obtenirHeureCourante();
 
+    // De nouveaux clients commandent : la table n'est plus signalée comme payée
+    delete payees[emplacementActifId];
+
     if (cmd.lignes.length === 0 || !cmd.heureOuverture) {
       cmd.heureOuverture = maintenant;
     }
@@ -643,7 +727,7 @@
     if (!emp) return;
 
     const cmd = obtenirOuCreerCommande(emp.id);
-    const statutInfo = obtenirStatutLisible(cmd);
+    const statutInfo = obtenirStatutLisible(cmd, emp.id);
 
     document.getElementById('ticket-reference').textContent = cmd.reference;
     document.getElementById('ticket-nom-emplacement').textContent = emp.nom;
@@ -819,6 +903,17 @@
 
     historique.unshift(archive);
 
+    // Les clients sur place restent à table : on garde la trace du paiement sur l'écran de salle
+    if (cmd.modeService === 'Sur place') {
+      payees[emplacementActifId] = {
+        reference: archive.reference,
+        heure: archive.heureEncaissement,
+        montant: archive.montant
+      };
+    } else {
+      delete payees[emplacementActifId];
+    }
+
     // Réinitialisation de la table
     commandes[emplacementActifId] = {
       reference: genererReferenceTicket(),
@@ -832,7 +927,8 @@
     sauvegarderTout();
     rendreVueCommande();
     afficherMessageTemporaire(
-      'Ticket encaissé (' + formaterEuros(montantRegle) + ' — ' + archive.emplacementNom + ').',
+      'Ticket encaissé (' + formaterEuros(montantRegle) + ' — ' + archive.emplacementNom + ').' +
+        (cmd.modeService === 'Sur place' ? ' La table reste marquée payée dans la salle.' : ''),
       'succes'
     );
   });
@@ -1102,7 +1198,7 @@
 
     salle.forEach(function (emp, index) {
       const cmd = commandes[emp.id];
-      const statutInfo = obtenirStatutLisible(cmd);
+      const statutInfo = obtenirStatutLisible(cmd, emp.id);
       const nbArticles = compterArticlesCommande(cmd);
 
       const li = document.createElement('li');
@@ -1141,6 +1237,7 @@
         }
 
         const copieEmp = Object.assign({}, emp);
+        delete payees[emp.id];
         salle.splice(index, 1);
         if (emplacementActifId === emp.id) {
           emplacementActifId = salle.length > 0 ? salle[0].id : null;
@@ -1251,6 +1348,7 @@
       verbeDetruire: 'Effacer le journal',
       actionConfirmee: function () {
         historique = [];
+        payees = {};
         sauvegarderTout();
         rendreAdminHistorique();
         afficherMessageTemporaire('Journal de la soirée effacé.', 'info');
