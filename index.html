@@ -86,6 +86,9 @@
             <button type="button" class="btn btn--secondaire" data-filtre-salle="occupees">
               Tables occupées et à encaisser
             </button>
+            <button type="button" class="btn btn--secondaire" data-filtre-salle="payees">
+              Payées, clients encore là
+            </button>
             <button type="button" class="btn btn--secondaire" data-filtre-salle="tables">
               Tables uniquement
             </button>
@@ -95,6 +98,13 @@
           </div>
         </div>
         <ul class="liste-registre" id="liste-emplacements-salle"></ul>
+      </div>
+
+      <div class="panneau-registre">
+        <div class="entete-panneau">
+          <h2 class="titre-section">Derniers encaissements</h2>
+        </div>
+        <ul class="liste-registre" id="liste-derniers-encaissements"></ul>
       </div>
     </section>
 
