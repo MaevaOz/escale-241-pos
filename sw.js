@@ -1,4 +1,4 @@
-const NOM_CACHE = 'escale-241-pos-v3';
+const NOM_CACHE = 'escale-241-pos-v4';
 const FICHIERS_CACHE = [
   './',
   './index.html',
@@ -34,10 +34,33 @@ self.addEventListener('activate', function (event) {
   self.clients.claim();
 });
 
+// Réseau d'abord (3 s maximum) pour récupérer les mises à jour automatiquement,
+// puis cache si le réseau est absent ou trop lent. Fonctionne donc hors-ligne.
 self.addEventListener('fetch', function (event) {
+  const requete = event.request;
+  if (requete.method !== 'GET' || new URL(requete.url).origin !== self.location.origin) {
+    return;
+  }
   event.respondWith(
-    caches.match(event.request).then(function (reponseCache) {
-      return reponseCache || fetch(event.request);
-    })
+    (function () {
+      const reseau = fetch(requete).then(function (reponse) {
+        if (reponse && reponse.ok) {
+          const copie = reponse.clone();
+          caches.open(NOM_CACHE).then(function (cache) { cache.put(requete, copie); });
+        }
+        return reponse;
+      });
+      const delai = new Promise(function (resolve) {
+        setTimeout(function () { resolve(null); }, 3000);
+      });
+      return Promise.race([reseau, delai]).then(function (premier) {
+        if (premier) return premier;
+        return caches.match(requete).then(function (enCache) {
+          return enCache || reseau;
+        });
+      }).catch(function () {
+        return caches.match(requete);
+      });
+    })()
   );
 });
