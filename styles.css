@@ -1122,3 +1122,105 @@ body {
     animation: none !important;
   }
 }
+
+
+/* ==========================================================================
+   VERSION 2 : RECAP, ADDITION PARTAGÉE, DÉTAIL DE TICKET
+   ========================================================================== */
+.ligne-registre--selection {
+  background-color: var(--info-claire);
+  box-shadow: inset 4px 0 0 var(--croix);
+}
+
+.stats-recap {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+  gap: var(--espace-4);
+  padding: var(--espace-4) var(--espace-6);
+}
+
+.stat-bloc {
+  background-color: var(--surface-haute);
+  border: 1px solid var(--trait);
+  border-radius: var(--arrondi-bouton);
+  padding: var(--espace-3) var(--espace-4);
+  display: flex;
+  flex-direction: column;
+  gap: var(--espace-1);
+}
+
+.stat-libelle {
+  color: var(--texte-secondaire);
+  font-size: var(--taille-petit);
+}
+
+.stat-valeur {
+  color: var(--encre);
+  font-size: 24px;
+  line-height: 30px;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+
+.entete-panneau--sous {
+  border-top: 1px solid var(--trait);
+}
+
+.note-recap {
+  padding: var(--espace-2) var(--espace-6) var(--espace-4);
+}
+
+.tag-annule {
+  color: var(--erreur);
+  font-weight: 700;
+  font-size: var(--taille-petit);
+}
+
+.ticket-paiements {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: var(--espace-2);
+  padding: var(--espace-2) 0;
+}
+
+.ticket-paiement-ligne {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: var(--espace-2);
+  font-size: var(--taille-petit);
+  color: var(--ticket-secondaire);
+  font-variant-numeric: tabular-nums;
+}
+
+.onglets-partage {
+  display: flex;
+  gap: var(--espace-3);
+  flex-wrap: wrap;
+  margin-bottom: var(--espace-4);
+}
+
+.detail-ligne {
+  display: flex;
+  justify-content: space-between;
+  gap: var(--espace-4);
+  padding: var(--espace-2) 0;
+  border-bottom: 1px solid var(--trait);
+  font-variant-numeric: tabular-nums;
+}
+
+.detail-ligne--total {
+  font-weight: 700;
+  color: var(--encre);
+  border-bottom: 2px solid var(--trait-fort);
+}
+
+#modale-partage .modale-corps,
+#modale-ticket .modale-corps {
+  overflow-y: auto;
+}
+
+#btn-partager-addition {
+  width: 100%;
+}
