@@ -29,6 +29,9 @@
       <button type="button" class="btn btn--secondaire" id="nav-btn-commande">
         Prendre une commande
       </button>
+      <button type="button" class="btn btn--secondaire" id="nav-btn-recap">
+        Recap des ventes
+      </button>
       <button type="button" class="btn btn--discret" id="nav-btn-admin">
         Gérer la carte et la salle
       </button>
@@ -60,7 +63,7 @@
             Sélectionnez une table ou une place au comptoir pour ouvrir ou reprendre son ticket.
           </p>
         </div>
-        <div class="resume-service" aria-label="Synthèse de la soirée">
+        <div class="resume-service" aria-label="Synthèse du service">
           <div class="resume-item">
             <span class="texte-secondaire">Emplacements occupés :</span>
             <span class="resume-valeur" id="stat-occupes">0 sur 20</span>
@@ -70,8 +73,12 @@
             <span class="resume-valeur" id="stat-en-cours">0,00 €</span>
           </div>
           <div class="resume-item">
-            <span class="texte-secondaire">Encaissé ce soir :</span>
+            <span class="texte-secondaire">Encaissé ce service :</span>
             <span class="resume-valeur" id="stat-encaisse">0,00 €</span>
+          </div>
+          <div class="resume-item">
+            <span class="texte-secondaire" id="service-info"></span>
+            <button type="button" class="btn btn--secondaire" id="btn-cloturer-service">Clôturer le service</button>
           </div>
         </div>
       </div>
@@ -102,7 +109,7 @@
 
       <div class="panneau-registre">
         <div class="entete-panneau">
-          <h2 class="titre-section">Derniers encaissements</h2>
+          <h2 class="titre-section">Derniers encaissements du service</h2>
         </div>
         <ul class="liste-registre" id="liste-derniers-encaissements"></ul>
       </div>
@@ -180,8 +187,17 @@
                 <span>Nombre d'articles</span>
                 <span id="ticket-nb-articles">0 article</span>
               </div>
+              <div class="ticket-ligne-sous-total" id="ticket-ligne-brut" hidden>
+                <span>Total du ticket</span>
+                <span id="ticket-montant-brut">0,00 €</span>
+              </div>
+              <div class="ticket-ligne-sous-total" id="ticket-ligne-deja-paye" hidden>
+                <span>Déjà encaissé</span>
+                <span id="ticket-montant-deja-paye">0,00 €</span>
+              </div>
+              <ul class="ticket-paiements" id="ticket-paiements" hidden></ul>
               <div class="ticket-ligne-total">
-                <span class="ticket-total-libelle">Total à régler</span>
+                <span class="ticket-total-libelle" id="ticket-total-libelle">Total à régler</span>
                 <span class="ticket-total-montant" id="ticket-montant-total">0,00 €</span>
               </div>
             </div>
@@ -190,6 +206,9 @@
             <div class="ticket-actions">
               <button type="button" class="btn btn--principal" id="btn-encaisser-ticket">
                 Encaisser le ticket
+              </button>
+              <button type="button" class="btn btn--secondaire" id="btn-partager-addition">
+                Partager l'addition
               </button>
               <div class="ticket-actions-secondaires">
                 <button type="button" class="btn-ticket-secondaire" id="btn-marquer-attente">
@@ -206,7 +225,50 @@
     </section>
 
     <!-- ====================================================================
-         ÉCRAN 3 : PILOTAGE DE LA CARTE ET DE LA SALLE (ADMINISTRATION)
+         ÉCRAN 3 : RECAP DES VENTES (SERVICES, TOTAUX, TICKETS)
+         ==================================================================== -->
+    <section id="vue-recap" class="vue-ecran" aria-labelledby="titre-vue-recap" hidden>
+      <div class="entete-vue">
+        <div>
+          <h1 class="titre-page" id="titre-vue-recap">Recap des ventes</h1>
+          <p class="texte-secondaire">
+            Chaque service clôturé reste ici, avec ses totaux et le détail de ses tickets.
+          </p>
+        </div>
+        <button type="button" class="btn btn--secondaire" id="btn-recap-retour-salle">
+          Revenir à la salle
+        </button>
+      </div>
+
+      <div class="panneau-registre">
+        <div class="entete-panneau">
+          <h2 class="titre-section">Services</h2>
+        </div>
+        <ul class="liste-registre" id="liste-services"></ul>
+      </div>
+
+      <div class="panneau-registre">
+        <div class="entete-panneau">
+          <h2 class="titre-section" id="titre-detail-service">Détail du service</h2>
+          <div style="display:flex; gap:12px; flex-wrap:wrap;" id="actions-detail-service"></div>
+        </div>
+        <div class="stats-recap" id="stats-service"></div>
+
+        <div class="entete-panneau entete-panneau--sous">
+          <h3 class="titre-bloc">Produits vendus</h3>
+        </div>
+        <ul class="liste-registre" id="liste-top-produits"></ul>
+        <p class="texte-secondaire note-recap" id="note-sans-detail" hidden></p>
+
+        <div class="entete-panneau entete-panneau--sous">
+          <h3 class="titre-bloc">Tickets du service</h3>
+        </div>
+        <ul class="liste-registre" id="liste-tickets-service"></ul>
+      </div>
+    </section>
+
+    <!-- ====================================================================
+         ÉCRAN 4 : PILOTAGE DE LA CARTE ET DE LA SALLE (ADMINISTRATION)
          ==================================================================== -->
     <section id="vue-admin" class="vue-ecran" aria-labelledby="titre-vue-admin" hidden>
       <div class="entete-vue">
@@ -227,6 +289,17 @@
           <div class="entete-panneau">
             <h2 class="titre-section">Catalogue des plats et boissons</h2>
           </div>
+
+          <form id="form-prix-formule" class="formulaire-bloc" novalidate>
+            <h3 class="titre-bloc" style="margin-bottom:12px;">Prix de la Formule 4 Boissons</h3>
+            <div style="display:flex; gap:12px; align-items:flex-end; flex-wrap:wrap;">
+              <div class="champ-groupe">
+                <label class="champ-libelle" for="champ-prix-formule">Prix en euros (€)</label>
+                <input type="text" inputmode="decimal" id="champ-prix-formule" class="champ-saisie chasse-fixe">
+              </div>
+              <button type="submit" class="btn btn--secondaire">Enregistrer le prix</button>
+            </div>
+          </form>
 
           <form id="form-ajout-produit" class="formulaire-bloc" novalidate>
             <h3 class="titre-bloc" style="margin-bottom:12px;">Ajouter un produit à la carte</h3>
@@ -310,15 +383,25 @@
             <ul class="liste-registre" id="liste-admin-salle"></ul>
           </div>
 
-          <!-- Journal des encaissements de la soirée -->
+          <!-- Sauvegarde et restauration -->
           <div class="panneau-registre">
             <div class="entete-panneau">
-              <h2 class="titre-section">Journal des encaissements de la nuit</h2>
-              <button type="button" class="btn btn--danger" id="btn-cloturer-soiree">
-                Effacer le journal de la soirée
-              </button>
+              <h2 class="titre-section">Sauvegarde des données</h2>
             </div>
-            <ul class="liste-registre" id="liste-historique-encaissements"></ul>
+            <div class="formulaire-bloc">
+              <p class="texte-secondaire" style="margin-bottom:16px;">
+                Tout est enregistré sur cette tablette. Exportez régulièrement un fichier de sauvegarde (carte, tickets, services) et gardez-le ailleurs (mail, cloud). Il sert aussi à changer de tablette.
+              </p>
+              <div style="display:flex; gap:12px; flex-wrap:wrap; align-items:center;">
+                <button type="button" class="btn btn--principal" id="btn-exporter-sauvegarde">
+                  Exporter une sauvegarde
+                </button>
+                <label class="btn btn--secondaire" for="champ-import-sauvegarde" style="cursor:pointer;">
+                  Restaurer une sauvegarde
+                </label>
+                <input type="file" id="champ-import-sauvegarde" accept=".json,application/json" hidden>
+              </div>
+            </div>
           </div>
         </div>
       </div>
@@ -335,10 +418,10 @@
         <div>
           <h2 class="titre-section" id="titre-modale-formule">Formule 4 Boissons à 10,00 €</h2>
           <p class="texte-secondaire">
-            Sélectionnez exactement 4 boissons (bières à 3 € et jus à 2 € au choix, panachage libre).
+            Sélectionnez exactement 4 boissons parmi les boissons éligibles (panachage libre).
           </p>
         </div>
-        <span class="reference">10,00 €</span>
+        <span class="reference" id="reference-prix-formule">10,00 €</span>
       </div>
 
       <div class="modale-corps">
@@ -356,6 +439,50 @@
         <button type="button" class="btn btn--principal" id="btn-valider-formule" disabled>
           Ajouter la formule au ticket (10,00 €)
         </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ====================================================================
+       MODALE : ADDITION PARTAGÉE
+       ==================================================================== -->
+  <div id="modale-partage" class="voile-modale" role="dialog" aria-modal="true" aria-labelledby="titre-modale-partage" hidden>
+    <div class="fenetre-modale">
+      <div class="modale-entete">
+        <div>
+          <h2 class="titre-section" id="titre-modale-partage">Partager l'addition</h2>
+          <p class="texte-secondaire" id="partage-sous-titre"></p>
+        </div>
+      </div>
+      <div class="modale-corps">
+        <div class="onglets-partage">
+          <button type="button" class="btn btn--secondaire est-actif" id="partage-onglet-articles">Par articles</button>
+          <button type="button" class="btn btn--secondaire" id="partage-onglet-montant">Par parts ou montant</button>
+        </div>
+        <div id="partage-corps"></div>
+      </div>
+      <div class="modale-pied">
+        <button type="button" class="btn btn--secondaire" id="btn-fermer-partage">Fermer</button>
+        <button type="button" class="btn btn--principal" id="btn-valider-partage" disabled>Choisissez des articles</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ====================================================================
+       MODALE : DÉTAIL D'UN TICKET
+       ==================================================================== -->
+  <div id="modale-ticket" class="voile-modale" role="dialog" aria-modal="true" aria-labelledby="titre-modale-ticket" hidden>
+    <div class="fenetre-modale">
+      <div class="modale-entete">
+        <div>
+          <h2 class="titre-section" id="titre-modale-ticket">Ticket</h2>
+          <p class="texte-secondaire" id="sous-titre-modale-ticket"></p>
+        </div>
+      </div>
+      <div class="modale-corps" id="detail-ticket-corps"></div>
+      <div class="modale-pied">
+        <button type="button" class="btn btn--secondaire" id="btn-fermer-ticket">Fermer</button>
+        <button type="button" class="btn btn--principal" id="btn-rouvrir-ticket" hidden>Rouvrir ce ticket</button>
       </div>
     </div>
   </div>
